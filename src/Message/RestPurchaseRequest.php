@@ -141,6 +141,85 @@ class RestPurchaseRequest extends RestAbstractRequest
     }
 
     /**
+     * Get Customers bank account
+     *
+     * The formatted IBAN for the customer.
+     * This is required for credit checks, Pay After Delivery.
+     *
+     * @return int|null
+     */
+    public function getBankAccount()
+    {
+        return $this->getParameter('bank_account');
+    }
+
+    /**
+     * Set Customers bank account
+     *
+     * The formatted IBAN for the customer.
+     * This is required for credit checks, Pay After Delivery.
+     *
+     * @param $value
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function setBankAccount($value)
+    {
+        return $this->setParameter('bank_account', $value);
+    }
+
+    /**
+     * Get Customers birthday
+     *
+     * The birth date of the customer in the format yyyy-mm-dd.
+     * This is required for credit checks, Pay After Delivery.
+     *
+     * @return int|null
+     */
+    public function getBirthday()
+    {
+        return $this->getParameter('birthday');
+    }
+
+    /**
+     * Set Customers birthday
+     *
+     * The birth date of the customer in the format yyyy-mm-dd.
+     * This is required for credit checks, Pay After Delivery.
+     *
+     * @param $value
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function setBirthday($value)
+    {
+        return $this->setParameter('birthday', $value);
+    }
+
+    /**
+     * Get Checkout options
+     *
+     * This is required for credit checks, Pay After Delivery.
+     *
+     * @return int|null
+     */
+    public function getCheckoutOptions()
+    {
+        return $this->getParameter('checkout_options');
+    }
+
+    /**
+     * Get Checkout options
+     * 
+     * This is required for credit checks, Pay After Delivery.
+     *
+     * @param $value
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function setCheckoutOptions($value)
+    {
+        return $this->setParameter('checkout_options', $value);
+    }
+
+    /**
      * Get the gateway.
      *
      * The unique gateway id to immediately direct the customer to the payment method.
@@ -411,10 +490,10 @@ class RestPurchaseRequest extends RestAbstractRequest
     protected function getPaymentData()
     {
         $data = array(
-            'cancel_url'   => $this->getCancelUrl(),
-            'close_window' => $this->getCloseWindow(),
+            'cancel_url'       => $this->getCancelUrl(),
+            'close_window'     => $this->getCloseWindow(),
             'notification_url' => $this->getNotifyUrl(),
-            'redirect_url'   => $this->getReturnUrl(),
+            'redirect_url'     => $this->getReturnUrl(),
         );
 
         return array_filter($data);
@@ -440,8 +519,8 @@ class RestPurchaseRequest extends RestAbstractRequest
         }
 
         $cardData = array(
-            'address1'         => $this->getCard()->getAddress1(),
-            'address2'         => $this->getCard()->getAddress2(),
+            'address1'          => $this->getCard()->getAddress1(),
+            'address2'          => $this->getCard()->getAddress2(),
             'city'              => $this->getCard()->getCity(),
             'country'           => $this->getCard()->getCountry(),
             'email'             => $this->getCard()->getEmail(),
@@ -467,6 +546,10 @@ class RestPurchaseRequest extends RestAbstractRequest
     {
         $data = array(
             'issuer_id' => $this->getIssuer(),
+            'bank_account' => $this->getBankAccount(),
+            'birthday' => $this->getBirthday(),
+            'phone' => $this->getCard()->getPhone(),
+            'email' => $this->getCard()->getEmail()
         );
 
         return array_filter($data);
@@ -484,10 +567,10 @@ class RestPurchaseRequest extends RestAbstractRequest
         if (! empty($itemBag)) {
             foreach ($itemBag->all() as $item) {
                 $items[] = array(
-                    'name' => $item->getName(),
+                    'name'        => $item->getName(),
                     'description' => $item->getDescription(),
-                    'quantity' => $item->getQuantity(),
-                    'unit_price' => $item->getPrice(),
+                    'quantity'    => $item->getQuantity(),
+                    'unit_price'  => $item->getPrice(),
                 );
             }
         }
@@ -528,6 +611,17 @@ class RestPurchaseRequest extends RestAbstractRequest
             $this->validate('issuer');
         }
 
+        // When the gateway is set to PAYAFTER,
+        // the bank account checkout options and birthday parameters are required.
+        if (
+            $this->getType() == 'direct' &&
+            $this->getGateway() == 'PAYAFTER'
+        ) {
+            $this->validate('bank_account');
+            $this->validate('birthday');
+            $this->validate('checkout_options');
+        }
+
         $data = array(
             'amount'           => $this->getAmountInteger(),
             'currency'         => $this->getCurrency(),
@@ -543,6 +637,7 @@ class RestPurchaseRequest extends RestAbstractRequest
             'var1'             => $this->getVar1(),
             'var2'             => $this->getVar2(),
             'var3'             => $this->getVar3(),
+            'checkout_options' => $this->getCheckoutOptions()
         );
 
         $paymentData = $this->getPaymentData();
