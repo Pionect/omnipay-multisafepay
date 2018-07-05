@@ -322,6 +322,56 @@ class RestPurchaseRequest extends RestAbstractRequest
     }
 
     /**
+     * Get Customers IP address
+     *
+     * The IP address of the customer.
+     *
+     * @return string|null
+     */
+    public function getIpAddress()
+    {
+        return $this->getParameter('ip_address');
+    }
+
+    /**
+     * Set Customers IP address
+     *
+     * The IP address of the customer.
+     *
+     * @param $value
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function setIpAddress($value)
+    {
+        return $this->setParameter('ip_address', $value);
+    }
+
+    /**
+     * Get Forwarded IP address
+     *
+     * The X-FORWARED-FOR header of the customer request when using a proxy.
+     *
+     * @return string|null
+     */
+    public function getForwardedIpAddress()
+    {
+        return $this->getParameter('forwarded_ip');
+    }
+
+    /**
+     * Set Forwarded IP address
+     *
+     * The X-FORWARED-FOR header of the customer request when using a proxy.
+     *
+     * @param $value
+     * @return \Omnipay\Common\Message\AbstractRequest
+     */
+    public function setForwardedIpAddress($value)
+    {
+        return $this->setParameter('forwarded_ip', $value);
+    }
+
+    /**
      * Get manual.
      *
      * If true this forces a credit card transaction to require manual
@@ -521,6 +571,8 @@ class RestPurchaseRequest extends RestAbstractRequest
         $cardData = array(
             'address1'          => $this->getCard()->getAddress1(),
             'address2'          => $this->getCard()->getAddress2(),
+            'ip_address'        => $this->getIpAddress(),
+            'forwarded_ip'      => $this->getForwardedIpAddress(),
             'city'              => $this->getCard()->getCity(),
             'country'           => $this->getCard()->getCountry(),
             'email'             => $this->getCard()->getEmail(),
