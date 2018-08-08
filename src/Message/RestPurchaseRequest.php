@@ -512,7 +512,7 @@ class RestPurchaseRequest extends RestAbstractRequest
         return $this->setParameter('google_analytics', $value);
     }
 
-    /** 
+    /**
      * Get items HTML
      *
      * @return  string
@@ -522,7 +522,7 @@ class RestPurchaseRequest extends RestAbstractRequest
         $this->setParameter('itemsHtml', $itemsHtml);
     }
 
-    /** 
+    /**
      * Get items HTML
      *
      * @return  string
@@ -609,7 +609,7 @@ class RestPurchaseRequest extends RestAbstractRequest
 
     /**
      * Get itembag data.
-     * 
+     *
      * @return array
      */
     protected function getItemBagData()
@@ -656,10 +656,7 @@ class RestPurchaseRequest extends RestAbstractRequest
 
         // When the gateway is set to IDEAL,
         // the issuer parameter is required.
-        if (
-            $this->getType() == 'direct' &&
-            $this->getGateway() == 'IDEAL'
-        ) {
+        if ($this->getType() == 'direct' && $this->getGateway() == 'IDEAL') {
             $this->validate('issuer');
         }
 
@@ -727,11 +724,11 @@ class RestPurchaseRequest extends RestAbstractRequest
      */
     public function sendData($data)
     {
-        $httpResponse = $this->sendRequest('POST', '/orders', null, $data);
+        $httpResponse = $this->sendRequest('POST', '/orders', json_encode($data));
 
         $this->response = new RestPurchaseResponse(
             $this,
-            $httpResponse->json()
+            json_decode($httpResponse->getBody()->getContents(), true)
         );
 
         return $this->response;
